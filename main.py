@@ -32,13 +32,17 @@ print(len(price_list))
 # console list for matching description to console
 consoles = ["PS4", "PLAYSTATION 4", "XBOX ONE", "PLAYSTATION 3","PS3","XBOX 360","PLAYSTATION 2","PS2","GAMECUBE"]
 
-# create dict for loading into database
-load_dict = {}
+# create list of dicts with description, console, price for loading into database
+# this is also the first check; if the description cannot be matched to a console, the item is skipped
+load_data = []
+error_count = 0
 for i in range(0,len(title_list)):
-    for console in consoles:
-        if title_list[i].find(console) > 0:
-            load_dict[i] = {"title":title_list[i],
-                            "console":console,
-                            "price":price_list[i]}
-            break
+        for console in consoles:
+            if title_list[i].find(console) > 0:
+                load_dict.append({"title":title_list[i],
+                                "console":console,
+                                "price":price_list[i]})
+                break
+            else:
+                pass
 print(load_dict)
