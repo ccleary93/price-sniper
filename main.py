@@ -42,3 +42,9 @@ for i in range(0,len(title_list)):
                             "price":price_list[i]}
             break
 print(load_dict)
+
+from title_matcher import TitleMatcher
+
+title_matcher = TitleMatcher()
+
+title_matcher.print_ps4()
