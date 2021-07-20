@@ -4,8 +4,8 @@ import time
 import random
 
 
-# START AT PAGE 2 for url to work properly - goes up to page 136. 48 results per page
-pgn = 2
+# goes up to page 136. 48 results per page
+pgn = 1
 
 title_list = []
 price_list = []
@@ -34,11 +34,11 @@ consoles = ["PS4", "PLAYSTATION 4", "XBOX ONE", "PLAYSTATION 3","PS3","XBOX 360"
 
 # create list of dicts with description, console, price for loading into database
 # this is also the first check; if the description cannot be matched to a console, the item is skipped
-load_data = []
+load_dict = []
 error_count = 0
 for i in range(0,len(title_list)):
         for console in consoles:
-            if title_list[i].find(console) > 0:
+            if title_list[i].find(console) >= 0:
                 load_dict.append({"title":title_list[i],
                                 "console":console,
                                 "price":price_list[i]})
@@ -52,3 +52,8 @@ from title_matcher import TitleMatcher
 title_matcher = TitleMatcher()
 
 title_matcher.print_ps4()
+
+#Check which found games match our PS4 games list
+print("PS4 games found with a potential match our database:")
+for game in [x for x in load_dict if x["console"] == "PS4" or x["console"] == "PLAYSTATION 4"]:
+    title_matcher.check_match_ps4(game["title"])
