@@ -48,12 +48,14 @@ for i in range(0,len(title_list)):
 print(load_dict)
 
 from title_matcher import TitleMatcher
+from data_cleanser import DataCleanser
 
 title_matcher = TitleMatcher()
 
-title_matcher.print_ps4()
+data_cleanser = DataCleanser()
 
 #Check which found games match our PS4 games list
 print("PS4 games found with a potential match our database:")
 for game in [x for x in load_dict if x["console"] == "PS4" or x["console"] == "PLAYSTATION 4"]:
+    game["title"] = data_cleanser.remove_punctuation(game["title"])
     title_matcher.check_match_ps4(game["title"])
