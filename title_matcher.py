@@ -6,3 +6,9 @@ class TitleMatcher:
 
     def print_ps4(self):
         print(self.ps4_data)
+    
+    def check_match_ps4(self, title):
+        for line in self.ps4_data:
+           if title.find(line) >= 0:
+               print(title)
+               continue
