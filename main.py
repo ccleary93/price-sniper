@@ -4,8 +4,8 @@ import time
 import random
 
 
-# goes up to page 136. 48 results per page
-pgn = 1
+# start from pgn 2, goes up to page 136. 48 results per page
+pgn = 2
 
 title_list = []
 price_list = []
