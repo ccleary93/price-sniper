@@ -19,72 +19,87 @@ class TitleMatcher:
             self.gamecube_data = file.readlines()
         self.gamecube_data = [line.rstrip() for line in self.gamecube_data]
 
-    def print_ps4(self):
-        print(self.ps4_data)
-
-    def check_match_ps4(self, game):
-        for line in self.ps4_data:
-            if game["description"].find(line.lower()) >= 0:
-                if game["title"] == "":
-                    game["title"] = line
-                else:
-                    if len(line) > len(game["title"]):
+    def check_match(self,game):
+    # first check for the console to determine what list to search
+        if game["console"] == "PS4" or game["console"] == "PLAYSTATION 4":
+            # iterate through lines
+            for line in self.ps4_data:
+                # if the line matches the game description, the title from the list gets added to the title field of the dict
+                # if title field is empty, it goes straight in. If there's already something in there, the longer match goes in
+                # longer match is more likely to be the correct one eg 'assassins creed' vs 'assassins creed 2'
+                if game["description"].find(line) >= 0:
+                    if game["title"] == "":
                         game["title"] = line
-        if game["title"] != "":
-            print(game)
-        #continue
-
-    def check_match_ps3(self, game):
-        for line in self.ps3_data:
-            if game["description"].find(line.lower()) >= 0:
-                if game["title"] == "":
-                    game["title"] = line
-                else:
-                    if len(line) > len(game["title"]):
+                    else:
+                        if len(line) > len(game["title"]):
+                            game["title"] = line
+            if game["title"] != "":
+                game["price"] = float(game["price"].split(sep="£")[1])
+                return game
+            else:
+                return False
+        elif game["console"] == "PS3" or game["console"] == "PLAYSTATION 3":
+            for line in self.ps3_data:
+                if game["description"].find(line) >= 0:
+                    if game["title"] == "":
                         game["title"] = line
-        if game["title"] != "":
-            print(game)
-
-    def check_match_ps2(self, game):
-        for line in self.ps2_data:
-            if game["description"].find(line.lower()) >= 0:
-                if game["title"] == "":
-                    game["title"] = line
-                else:
-                    if len(line) > len(game["title"]):
+                    else:
+                        if len(line) > len(game["title"]):
+                            game["title"] = line
+            if game["title"] != "":
+                game["price"] = float(game["price"].split(sep="£")[1])
+                return game
+            else:
+                return False
+        elif game["console"] == "PS2" or game["console"] == "PLAYSTATION 2":
+            for line in self.ps2_data:
+                if game["description"].find(line) >= 0:
+                    if game["title"] == "":
                         game["title"] = line
-        if game["title"] != "":
-            print(game)
-
-    def check_match_xbone(self, game):
-        for line in self.xbone_data:
-            if game["description"].find(line.lower()) >= 0:
-                if game["title"] == "":
-                    game["title"] = line
-                else:
-                    if len(line) > len(game["title"]):
+                    else:
+                        if len(line) > len(game["title"]):
+                            game["title"] = line
+            if game["title"] != "":
+                game["price"] = float(game["price"].split(sep="£")[1])
+                return game
+            else:
+                return False
+        elif game["console"] == "XBOX ONE":
+            for line in self.xbone_data:
+                if game["description"].find(line) >= 0:
+                    if game["title"] == "":
                         game["title"] = line
-        if game["title"] != "":
-            print(game)
-
-    def check_match_xbox_360(self, game):
-        for line in self.xbox360_data:
-            if game["description"].find(line.lower()) >= 0:
-                if game["title"] == "":
-                    game["title"] = line
-                else:
-                    if len(line) > len(game["title"]):
+                    else:
+                        if len(line) > len(game["title"]):
+                            game["title"] = line
+            if game["title"] != "":
+                game["price"] = float(game["price"].split(sep="£")[1])
+                return game
+            else:
+                return False
+        elif game["console"] == "XBOX 360":
+            for line in self.xbox360_data:
+                if game["description"].find(line) >= 0:
+                    if game["title"] == "":
                         game["title"] = line
-        if game["title"] != "":
-            print(game)
-
-    def check_match_gamecube(self, game):
-        for line in self.gamecube_data:
-            if game["description"].find(line.lower()) >= 0:
-                if game["title"] == "":
-                    game["title"] = line
-                else:
-                    if len(line) > len(game["title"]):
+                    else:
+                        if len(line) > len(game["title"]):
+                            game["title"] = line
+            if game["title"] != "":
+                game["price"] = float(game["price"].split(sep="£")[1])
+                return game
+            else:
+                return False
+        elif game["console"] == "GAMECUBE":
+            for line in self.gamecube_data:
+                if game["description"].find(line) >= 0:
+                    if game["title"] == "":
                         game["title"] = line
-        if game["title"] != "":
-            print(game)
+                    else:
+                        if len(line) > len(game["title"]):
+                            game["title"] = line
+            if game["title"] != "":
+                game["price"] = float(game["price"].split(sep="£")[1])
+                return game
+            else:
+                return False
