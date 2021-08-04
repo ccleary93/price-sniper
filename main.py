@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import time
 import random
+import sqlite3
 
 
 # START AT PAGE 2 - goes up to page 136. 48 results per page
