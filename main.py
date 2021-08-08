@@ -5,6 +5,7 @@ import random
 import sqlite3
 
 
+
 # START AT PAGE 2 - goes up to page 136. 48 results per page
 pgn = 2
 
@@ -12,7 +13,7 @@ title_list = []
 price_list = []
 id_list = []
 
-while pgn < 4:
+while pgn < 3:
     url = f"https://www.ebay.co.uk/b/Video-Games/139973/bn_450842?LH_Sold=1&mag=1&rt=nc&_pgn={pgn}&_sop=13"
     connection = requests.get(url)
     print(connection)
@@ -32,17 +33,28 @@ print(len(price_list))
 print(id_list)
 print(len(id_list))
 
-consoles = ["PS4", "PLAYSTATION 4", "XBOX ONE", "PLAYSTATION 3","PS3","XBOX 360","PLAYSTATION 2","PS2","GAMECUBE"]
+consoles = {"PLAYSTATION 2":"PS2",
+            "PS2":"PS2",
+            "PLAYSTATION 3":"PS3",
+            "PS3":"PS3",
+            "PS4":"PS4",
+            "PLAYSTATION 4":"PS4",
+            "XBOX ONE":"XBOX ONE",
+            "XBOX 360":"XBOX 360",
+            "GAMECUBE":"GAMECUBE"}
 
+unique_id_check = []
 load_dict = []
 error_count = 0
 for i in range(0,len(title_list)):
-        for console in consoles:
-            if title_list[i].lower().find(console.lower()) >= 0:
+        for console in consoles.keys():
+            if title_list[i].lower().find(console.lower()) >= 0 and id_list[i] not in unique_id_check:
                 load_dict.append({"description":title_list[i],
-                                "console":console,
+                                "console":consoles[console],
                                 "price":price_list[i],
-                                  "title":""})
+                                "ebay_id":id_list[i],
+                                "title":""})
+                unique_id_check += id_list[i]
                 break
             else:
                 pass
@@ -76,11 +88,13 @@ database_schema = {
     "GAMECUBE":"gamecube"
 }
 
-for console in consoles:
+for console in consoles.keys():
     for game in [game for game in load_dict if game["console"] == console]:
         game["description"] = data_cleanser.remove_punctuation(game["description"])
         if title_matcher.check_match(game):
-            cursor.execute(f"INSERT INTO '{database_schema[game['console']]}'(title,description,console,price) VALUES('{game['title']}','{game['description']}','{game['console']}',{game['price']})")
+            cursor.execute(f'''INSERT INTO 
+            '{database_schema[game['console']]}'(title,description,console,price,ebay_id) 
+            VALUES('{game['title']}','{game['description']}','{game['console']}',{game['price']},{game['ebay_id']})''')
             db.commit()
         else:
             pass
