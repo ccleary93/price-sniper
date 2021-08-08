@@ -10,6 +10,7 @@ pgn = 2
 
 title_list = []
 price_list = []
+id_list = []
 
 while pgn < 4:
     url = f"https://www.ebay.co.uk/b/Video-Games/139973/bn_450842?LH_Sold=1&mag=1&rt=nc&_pgn={pgn}&_sop=13"
