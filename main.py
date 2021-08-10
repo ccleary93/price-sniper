@@ -37,6 +37,10 @@ print(len(id_list))
 print(postage_list)
 print(len(postage_list))
 
+if len(title_list) != len(price_list) or len(title_list) != len(postage_list) or len(title_list) != len(id_list):
+    print("lists do not match")
+    exit()
+
 consoles = {"PLAYSTATION 2":"PS2",
             "PS2":"PS2",
             "PLAYSTATION 3":"PS3",
