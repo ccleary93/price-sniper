@@ -14,7 +14,12 @@ price_list = []
 id_list = []
 postage_list = []
 
-while pgn < 3:
+from id_indexer import ID_Indexer
+id_indexer = ID_Indexer
+end_index = id_indexer().load_last_id()
+continue_scrape = True
+
+while pgn < 5 and continue_scrape:
     url = f"https://www.ebay.co.uk/b/Video-Games/139973/bn_450842?LH_Sold=1&mag=1&rt=nc&_pgn={pgn}&_sop=13"
     connection = requests.get(url)
     print(connection)
@@ -24,6 +29,12 @@ while pgn < 3:
     price_list += [price.text for price in soup.find_all(name="span", class_="s-item__price")]
     postage_list += [str(0) if postage.text == "Free postage" else postage.text.split(sep="£")[1].split(sep=" ")[0] for postage in soup.find_all(name="span", class_="s-item__shipping s-item__logisticsCost")]
     id_list += [url["href"].split(sep="itm/")[1].split(sep="?")[0] for url in soup.find_all(name="a", class_="s-item__link")]
+        if end_index in id_list:
+        title_list = title_list[0:id_list.index(end_index)]
+        price_list = price_list[0:id_list.index(end_index)]
+        postage_list = postage_list[0:id_list.index(end_index)]
+        id_list = id_list[0:id_list.index(end_index)]
+        continue_scrape = False
     # job lots can have eg £5.50 to £15.00 in this field - job lots should be ignored
     pgn += 1
     time.sleep(random.randint(180,320)/100)
@@ -51,7 +62,6 @@ consoles = {"PLAYSTATION 2":"PS2",
             "XBOX 360":"XBOX 360",
             "GAMECUBE":"GAMECUBE"}
 
-unique_id_check = []
 load_dict = []
 error_count = 0
 for i in range(0,len(title_list)):
@@ -63,7 +73,6 @@ for i in range(0,len(title_list)):
                                 "postage":postage_list[i],
                                 "ebay_id":id_list[i],
                                 "title":""})
-                unique_id_check += id_list[i]
                 break
             else:
                 pass
@@ -93,6 +102,11 @@ database_schema = {
     "XBOX 360":"xbox_360",
     "GAMECUBE":"gamecube"
 }
+
+cursor.execute(f'''INSERT INTO
+                'first_item_index'(ebay_id)
+                VALUES('{id_list[0]}')''')
+db.commit
 
 for console in consoles.keys():
     for game in [game for game in load_dict if game["console"] == console]:
