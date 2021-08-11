@@ -34,6 +34,10 @@ class TitleMatcher:
             return False
 
     def check_match(self,game):
+        exclusions = ["job lot", "joblot", "bundle"]
+        for exclusion in exclusions:
+            if game["description"].find(exclusion) >= 0:
+                return False
         console_schema = {
             "PS4": self.ps4_data,
             "PLAYSTATION 4": self.ps4_data,
