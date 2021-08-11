@@ -29,7 +29,7 @@ while pgn < 5 and continue_scrape:
     price_list += [price.text for price in soup.find_all(name="span", class_="s-item__price")]
     postage_list += [str(0) if postage.text == "Free postage" else postage.text.split(sep="£")[1].split(sep=" ")[0] for postage in soup.find_all(name="span", class_="s-item__shipping s-item__logisticsCost")]
     id_list += [url["href"].split(sep="itm/")[1].split(sep="?")[0] for url in soup.find_all(name="a", class_="s-item__link")]
-        if end_index in id_list:
+    if end_index in id_list:
         title_list = title_list[0:id_list.index(end_index)]
         price_list = price_list[0:id_list.index(end_index)]
         postage_list = postage_list[0:id_list.index(end_index)]
