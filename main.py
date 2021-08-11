@@ -63,7 +63,7 @@ consoles = {"PLAYSTATION 2":"PS2",
             "GAMECUBE":"GAMECUBE"}
 
 load_dict = []
-error_count = 0
+unique_id_check = []
 for i in range(0,len(title_list)):
         for console in consoles.keys():
             if title_list[i].lower().find(console.lower()) >= 0 and id_list[i] not in unique_id_check:
@@ -73,6 +73,7 @@ for i in range(0,len(title_list)):
                                 "postage":postage_list[i],
                                 "ebay_id":id_list[i],
                                 "title":""})
+                unique_id_check.append(id_list[i])
                 break
             else:
                 pass
