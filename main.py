@@ -19,16 +19,34 @@ id_indexer = ID_Indexer
 end_index = id_indexer().load_last_id()
 continue_scrape = True
 
-while pgn < 5 and continue_scrape:
+while pgn < 3 and continue_scrape:
     url = f"https://www.ebay.co.uk/b/Video-Games/139973/bn_450842?LH_Sold=1&mag=1&rt=nc&_pgn={pgn}&_sop=13"
     connection = requests.get(url)
     print(connection)
     ingredients = connection.text
     soup = BeautifulSoup(ingredients,"html.parser")
-    title_list += [title.text for title in soup.find_all(name="h3", class_="s-item__title s-item__title--has-tags")]
-    price_list += [price.text for price in soup.find_all(name="span", class_="s-item__price")]
-    postage_list += [str(0) if postage.text == "Free postage" else postage.text.split(sep="£")[1].split(sep=" ")[0] for postage in soup.find_all(name="span", class_="s-item__shipping s-item__logisticsCost")]
-    id_list += [url["href"].split(sep="itm/")[1].split(sep="?")[0] for url in soup.find_all(name="a", class_="s-item__link")]
+    
+	#Get all divs that represent an item's info and iterate over them
+    item_info_tags = soup.find_all(name="div", class_="s-item__info")
+    for item_info_tag in item_info_tags:
+	    
+		#Take title and price as-is
+        title_list.append(item_info_tag.find(name="h3", class_="s-item__title s-item__title--has-tags").string)
+        price_list.append(item_info_tag.find(name="span", class_="s-item__price").string)
+        
+		#Take postage price as empty string if Free Postage, -1 if not found or invalid, or actual value otherwise
+        postage_current = item_info_tag.find(name="span", class_="s-item__shipping s-item__logisticsCost")
+        if postage_current == None or len(postage_current.string) < 2:
+            postage_list.append("-1")
+        elif postage_current.string == "Free postage":
+            postage_list.append(str(0))
+        else:
+            postage_list.append(postage_current.string.split(sep="£")[1].split(sep=" ")[0])
+        
+		#Extract Item ID from hrew
+        id_current = item_info_tag.find(name="a", class_="s-item__link")
+        id_list.append(id_current["href"].split(sep="itm/")[1].split(sep="?")[0])
+    
     if end_index in id_list:
         title_list = title_list[0:id_list.index(end_index)]
         price_list = price_list[0:id_list.index(end_index)]
@@ -64,8 +82,13 @@ consoles = {"PLAYSTATION 2":"PS2",
 
 load_dict = []
 unique_id_check = []
-for i in range(0,len(title_list)):
+for i in range(0,(len(title_list)-1)):
         for console in consoles.keys():
+            print(title_list[i])
+            print(type(title_list[i]))
+            print(title_list[i].lower())
+            print(title_list[i].lower().find(console.lower()))
+            print(id_list[i])
             if title_list[i].lower().find(console.lower()) >= 0 and id_list[i] not in unique_id_check:
                 load_dict.append({"description":title_list[i],
                                 "console":consoles[console],
