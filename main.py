@@ -14,15 +14,16 @@ price_list = []
 id_list = []
 postage_list = []
 
+# end_index and continue_scrape used to determine where the scrape should stop, to avoid double-counting
 from id_indexer import ID_Indexer
 id_indexer = ID_Indexer
 end_index = id_indexer().load_last_id()
 continue_scrape = True
 
 while pgn < 5 and continue_scrape:
+    # establish connection
     url = f"https://www.ebay.co.uk/b/Video-Games/139973/bn_450842?LH_Sold=1&mag=1&rt=nc&_pgn={pgn}&_sop=13"
     connection = requests.get(url)
-    print(connection)
     ingredients = connection.text
     soup = BeautifulSoup(ingredients,"html.parser")
     
@@ -30,15 +31,20 @@ while pgn < 5 and continue_scrape:
     item_info_tags = soup.find_all(name="div", class_="s-item__info")
     for item_info_tag in item_info_tags:
         
-        #Take title and price as-is
+        #Take title as-is
         title_list.append(item_info_tag.find(name="h3", class_="s-item__title s-item__title--has-tags").string)
-        price_list.append(item_info_tag.find(name="span", class_="s-item__price").string)
+
+        # if find_all returns only one item for price, load this. Otherwise, we have a job lot, and load "ERR"
+        if len(item_info_tag.find(name="span", class_="s-item__price").find_all(name="span", class_="POSITIVE")) == 1:
+            price_list.append(item_info_tag.find(name="span", class_="s-item__price").string)
+        else:
+            price_list.append("ERR")
         
-        #Take postage price as 0.00 if Free Postage, skip if missing or invalid, or actual value otherwise
+        #Take postage price as 0.00 if Free Postage, "ERR" if missing or invalid, or actual value otherwise
         postage_current = item_info_tag.find(name="span", class_="s-item__shipping s-item__logisticsCost")
         if postage_current == None or len(postage_current.string) < 2:
             #error case
-            pass
+            postage_list.append("ERR")
         elif postage_current.string == "Free postage":
             postage_list.append("0.00")
         else:
@@ -46,15 +52,16 @@ while pgn < 5 and continue_scrape:
         
         #Extract Item ID from hrew
         id_current = item_info_tag.find(name="a", class_="s-item__link")
-        id_list.append(id_current["href"].split(sep="itm/")[1].split(sep="?")[0])
-    
+        id_list.append(int(id_current["href"].split(sep="itm/")[1].split(sep="?")[0]))
+
+    # look for end_index in the list just scraped. If present, cut the lists down to end at end_index and terminate the PGN loop
     if end_index in id_list:
         title_list = title_list[0:id_list.index(end_index)]
         price_list = price_list[0:id_list.index(end_index)]
         postage_list = postage_list[0:id_list.index(end_index)]
         id_list = id_list[0:id_list.index(end_index)]
         continue_scrape = False
-    # job lots can have eg £5.50 to £15.00 in this field - job lots should be ignored
+
     pgn += 1
     time.sleep(random.randint(180,320)/100)
 
@@ -67,9 +74,6 @@ print(len(id_list))
 print(postage_list)
 print(len(postage_list))
 
-if len(title_list) != len(price_list) or len(title_list) != len(postage_list) or len(title_list) != len(id_list):
-    print("lists do not match")
-    exit()
 
 consoles = {"PLAYSTATION 2":"PS2",
             "PS2":"PS2",
@@ -85,7 +89,7 @@ load_dict = []
 unique_id_check = []
 for i in range(0,len(title_list)):
         for console in consoles.keys():
-            if title_list[i].lower().find(console.lower()) >= 0 and id_list[i] not in unique_id_check:
+            if title_list[i].lower().find(console.lower()) >= 0 and id_list[i] not in unique_id_check and postage_list[i] != "ERR" and price_list[i] != "ERR":
                 load_dict.append({"description":title_list[i],
                                 "console":consoles[console],
                                 "price":price_list[i],
