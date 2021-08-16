@@ -19,7 +19,7 @@ id_indexer = ID_Indexer
 end_index = id_indexer().load_last_id()
 continue_scrape = True
 
-while pgn < 3 and continue_scrape:
+while pgn < 5 and continue_scrape:
     url = f"https://www.ebay.co.uk/b/Video-Games/139973/bn_450842?LH_Sold=1&mag=1&rt=nc&_pgn={pgn}&_sop=13"
     connection = requests.get(url)
     print(connection)
@@ -84,11 +84,6 @@ load_dict = []
 unique_id_check = []
 for i in range(0,(len(title_list)-1)):
         for console in consoles.keys():
-            print(title_list[i])
-            print(type(title_list[i]))
-            print(title_list[i].lower())
-            print(title_list[i].lower().find(console.lower()))
-            print(id_list[i])
             if title_list[i].lower().find(console.lower()) >= 0 and id_list[i] not in unique_id_check:
                 load_dict.append({"description":title_list[i],
                                 "console":consoles[console],
