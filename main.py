@@ -34,12 +34,13 @@ while pgn < 5 and continue_scrape:
         title_list.append(item_info_tag.find(name="h3", class_="s-item__title s-item__title--has-tags").string)
         price_list.append(item_info_tag.find(name="span", class_="s-item__price").string)
         
-        #Take postage price as empty string if Free Postage, -1 if not found or invalid, or actual value otherwise
+        #Take postage price as 0.00 if Free Postage, skip if missing or invalid, or actual value otherwise
         postage_current = item_info_tag.find(name="span", class_="s-item__shipping s-item__logisticsCost")
         if postage_current == None or len(postage_current.string) < 2:
-            postage_list.append("-1")
+            #error case
+            pass
         elif postage_current.string == "Free postage":
-            postage_list.append(str(0))
+            postage_list.append("0.00")
         else:
             postage_list.append(postage_current.string.split(sep="£")[1].split(sep=" ")[0])
         
@@ -82,7 +83,7 @@ consoles = {"PLAYSTATION 2":"PS2",
 
 load_dict = []
 unique_id_check = []
-for i in range(0,(len(title_list)-1)):
+for i in range(0,len(title_list)):
         for console in consoles.keys():
             if title_list[i].lower().find(console.lower()) >= 0 and id_list[i] not in unique_id_check:
                 load_dict.append({"description":title_list[i],
