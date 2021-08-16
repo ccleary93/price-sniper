@@ -25,10 +25,29 @@ while pgn < 5 and continue_scrape:
     print(connection)
     ingredients = connection.text
     soup = BeautifulSoup(ingredients,"html.parser")
-    title_list += [title.text for title in soup.find_all(name="h3", class_="s-item__title s-item__title--has-tags")]
-    price_list += [price.text for price in soup.find_all(name="span", class_="s-item__price")]
-    postage_list += [str(0) if postage.text == "Free postage" else postage.text.split(sep="£")[1].split(sep=" ")[0] for postage in soup.find_all(name="span", class_="s-item__shipping s-item__logisticsCost")]
-    id_list += [url["href"].split(sep="itm/")[1].split(sep="?")[0] for url in soup.find_all(name="a", class_="s-item__link")]
+    
+    #Get all divs that represent an item's info and iterate over them
+    item_info_tags = soup.find_all(name="div", class_="s-item__info")
+    for item_info_tag in item_info_tags:
+        
+        #Take title and price as-is
+        title_list.append(item_info_tag.find(name="h3", class_="s-item__title s-item__title--has-tags").string)
+        price_list.append(item_info_tag.find(name="span", class_="s-item__price").string)
+        
+        #Take postage price as 0.00 if Free Postage, skip if missing or invalid, or actual value otherwise
+        postage_current = item_info_tag.find(name="span", class_="s-item__shipping s-item__logisticsCost")
+        if postage_current == None or len(postage_current.string) < 2:
+            #error case
+            pass
+        elif postage_current.string == "Free postage":
+            postage_list.append("0.00")
+        else:
+            postage_list.append(postage_current.string.split(sep="£")[1].split(sep=" ")[0])
+        
+        #Extract Item ID from hrew
+        id_current = item_info_tag.find(name="a", class_="s-item__link")
+        id_list.append(id_current["href"].split(sep="itm/")[1].split(sep="?")[0])
+    
     if end_index in id_list:
         title_list = title_list[0:id_list.index(end_index)]
         price_list = price_list[0:id_list.index(end_index)]
