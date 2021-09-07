@@ -5,12 +5,17 @@ import random
 import sqlite3
 import datetime
 
+# unique id check tracks the last batch of ids loaded to prevent duplicates being added to the db
+# although the first_item_index table terminates the scrape loop, and in theory should prevent duplicates...
+# ... as the listings should be in time order, in practice some duplicates were still being logged, possibly...
+# due to an 'overlap' when an item moved between pages
+unique_id_check = []
 
 while 1 > 0:
 
     #wait between 260 secs and 450 secs before sending more requests
-    #time_delay = random.randint(260, 450)
-    #time.sleep(time_delay)
+    time_delay = random.randint(260, 450)
+    time.sleep(time_delay)
 
     current_date = datetime.datetime.now().date().strftime('%d/%m/%Y')
     current_time = datetime.datetime.now().time().strftime('%H:%M')
@@ -29,7 +34,7 @@ while 1 > 0:
     end_index = id_indexer().load_last_id()
     continue_scrape = True
 
-    while pgn < 3 and continue_scrape:
+    while pgn < 5 and continue_scrape:
         # establish connection
         url = f"https://www.ebay.co.uk/b/Video-Games/139973/bn_450842?LH_Sold=1&mag=1&rt=nc&_pgn={pgn}&_sop=13"
         connection = requests.get(url)
@@ -91,13 +96,13 @@ while 1 > 0:
                 "GAMECUBE":"GAMECUBE"}
 
     load_dict = []
-    unique_id_check = []
+    ####       ####      unique_id_check = []
 
     # iterate over all items
     for i in range(0,len(title_list)):
         # check for a console match. also check item id unique and postage and price not ERR
         for console in consoles.keys():
-            if title_list[i].lower().find(console.lower()) >= 0 and id_list[i] not in unique_id_check and postage_list[i] != "ERR" and price_list[i] != "ERR":
+            if title_list[i].lower().find(console.lower()) >= 0 and postage_list[i] != "ERR" and price_list[i] != "ERR":
                 # add a dict to load_dict for each matched item
                 load_dict.append({"description":title_list[i],
                                 "console":consoles[console],
@@ -105,7 +110,6 @@ while 1 > 0:
                                 "postage":postage_list[i],
                                 "ebay_id":id_list[i],
                                 "title":""})
-                unique_id_check.append(id_list[i])
                 break
             else:
                 pass
@@ -140,16 +144,21 @@ while 1 > 0:
         for game in [game for game in load_dict if game["console"] == console]:
             game["description"] = data_cleanser.remove_punctuation(game["description"])
             if title_matcher.check_match(game):
-                cursor.execute(f'''INSERT INTO
-                '{database_schema[game['console']]}'(title,description,price,postage,total_price,date, time, ebay_id)
-                VALUES('{game['title']}',
-                '{game['description']}',
-                {game['price']},
-                {game['postage']},
-                {game['price']+float(game['postage'])},
-                '{current_date}',
-                '{current_time}',
-                {game['ebay_id']})''')
-                db.commit()
-            else:
-                pass
+                # check ID not in last batch
+                if id_list[i] not in unique_id_check:
+                    cursor.execute(f'''INSERT INTO
+                    '{database_schema[game['console']]}'(title,description,price,postage,total_price,date, time, ebay_id)
+                    VALUES('{game['title']}',
+                    '{game['description']}',
+                    {game['price']},
+                    {game['postage']},
+                    {game['price']+float(game['postage'])},
+                    '{current_date}',
+                    '{current_time}',
+                    {game['ebay_id']})''')
+                    db.commit()
+                else:
+                    pass
+
+    # now update unique ID list
+    unique_id_check = id_list
