@@ -6,7 +6,3 @@ class DataCleanser():
 
     def remove_punctuation(self, string):
         return "".join([char for char in string if char in self.whitelist]).lower()
-        # for char in string:
-        #     if char not in self.punctuation:
-        #         no_punct += char
-        # return no_punct.lower()

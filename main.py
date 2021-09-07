@@ -96,7 +96,6 @@ while 1 > 0:
                 "GAMECUBE":"GAMECUBE"}
 
     load_dict = []
-    ####       ####      unique_id_check = []
 
     # iterate over all items
     for i in range(0,len(title_list)):
@@ -145,7 +144,7 @@ while 1 > 0:
             game["description"] = data_cleanser.remove_punctuation(game["description"])
             if title_matcher.check_match(game):
                 # check ID not in last batch
-                if id_list[i] not in unique_id_check:
+                if game['ebay_id'] not in unique_id_check:
                     cursor.execute(f'''INSERT INTO
                     '{database_schema[game['console']]}'(title,description,price,postage,total_price,date, time, ebay_id)
                     VALUES('{game['title']}',
