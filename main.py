@@ -5,11 +5,7 @@ import random
 import sqlite3
 import datetime
 
-# unique id check tracks the last batch of ids loaded to prevent duplicates being added to the db
-# although the first_item_index table terminates the scrape loop, and in theory should prevent duplicates...
-# ... as the listings should be in time order, in practice some duplicates were still being logged, possibly...
-# due to an 'overlap' when an item moved between pages
-unique_id_check = []
+
 
 while 1 > 0:
 
@@ -28,13 +24,25 @@ while 1 > 0:
     id_list = []
     postage_list = []
 
-    # end_index and continue_scrape used to determine where the scrape should stop, to avoid double-counting
+    # end_index and continue_scrape used to determine where the scrape should stop, to avoid duplicates
     from id_indexer import ID_Indexer
     id_indexer = ID_Indexer
     end_index = id_indexer().load_last_id()
+
     continue_scrape = True
 
-    while pgn < 5 and continue_scrape:
+    # additionally pull last 20 IDs from each table. check will be applied at the end to avoid duplicates
+    unique_id_check = {
+        "gamecube": [id_indexer().load_last_20('gamecube')],
+        "ps2": [id_indexer().load_last_20('ps2')],
+        "ps3": [id_indexer().load_last_20('ps3')],
+        "ps4": [id_indexer().load_last_20('ps4')],
+        "xbox_360": [id_indexer().load_last_20('xbox_360')],
+        "xbox_one": [id_indexer().load_last_20('xbox_one')]
+    }
+
+
+    while pgn < 3 and continue_scrape:
         # establish connection
         url = f"https://www.ebay.co.uk/b/Video-Games/139973/bn_450842?LH_Sold=1&mag=1&rt=nc&_pgn={pgn}&_sop=13"
         connection = requests.get(url)
@@ -85,15 +93,15 @@ while 1 > 0:
 
 
     # schema to standardise which console identifier goes in the 'console' field of the load dict
-    consoles = {"PLAYSTATION 2":"PS2",
-                "PS2":"PS2",
-                "PLAYSTATION 3":"PS3",
-                "PS3":"PS3",
-                "PS4":"PS4",
-                "PLAYSTATION 4":"PS4",
-                "XBOX ONE":"XBOX ONE",
-                "XBOX 360":"XBOX 360",
-                "GAMECUBE":"GAMECUBE"}
+    consoles = {"playstation 2":"ps2",
+                "ps2":"ps2",
+                "playstation 3":"ps3",
+                "ps3":"ps3",
+                "ps4":"ps4",
+                "playstation 4":"ps4",
+                "xbox one":"xbox_one",
+                "xbox 360":"xbox_360",
+                "gamecube":"gamecube"}
 
     load_dict = []
 
@@ -101,7 +109,7 @@ while 1 > 0:
     for i in range(0,len(title_list)):
         # check for a console match. also check item id unique and postage and price not ERR
         for console in consoles.keys():
-            if title_list[i].lower().find(console.lower()) >= 0 and postage_list[i] != "ERR" and price_list[i] != "ERR":
+            if title_list[i].lower().find(console) >= 0 and postage_list[i] != "ERR" and price_list[i] != "ERR":
                 # add a dict to load_dict for each matched item
                 load_dict.append({"description":title_list[i],
                                 "console":consoles[console],
@@ -126,12 +134,12 @@ while 1 > 0:
 
 
     database_schema = {
-        "PS4":"ps4",
-        "PS3":"ps3",
-        "PS2":"ps2",
-        "XBOX ONE":"xbox_one",
-        "XBOX 360":"xbox_360",
-        "GAMECUBE":"gamecube"
+        "ps4":"ps4",
+        "ps3":"ps3",
+        "ps2":"ps2",
+        "xbox one":"xbox_one",
+        "xbox 360":"xbox_360",
+        "gamecube":"gamecube"
     }
 
     cursor.execute(f'''INSERT INTO
@@ -144,20 +152,17 @@ while 1 > 0:
             game["description"] = data_cleanser.remove_punctuation(game["description"])
             if title_matcher.check_match(game):
                 # check ID not in last batch
-                if game['ebay_id'] not in unique_id_check:
+                if game['ebay_id'] not in unique_id_check[game['console']]:
                     cursor.execute(f'''INSERT INTO
                     '{database_schema[game['console']]}'(title,description,price,postage,total_price,date, time, ebay_id)
                     VALUES('{game['title']}',
                     '{game['description']}',
                     {game['price']},
                     {game['postage']},
-                    {game['price']+float(game['postage'])},
+                    {round(game['price']+float(game['postage']),2)},
                     '{current_date}',
                     '{current_time}',
                     {game['ebay_id']})''')
                     db.commit()
                 else:
                     pass
-
-    # now update unique ID list
-    unique_id_check = id_list

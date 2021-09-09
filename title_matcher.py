@@ -39,15 +39,15 @@ class TitleMatcher:
             if game["description"].find(exclusion) >= 0:
                 return False
         console_schema = {
-            "PS4": self.ps4_data,
-            "PLAYSTATION 4": self.ps4_data,
-            "PS3": self.ps3_data,
-            "PLAYSTATION 3": self.ps3_data,
-            "PS2": self.ps2_data,
-            "PLAYSTATION 2": self.ps2_data,
-            "XBOX ONE": self.xbone_data,
-            "XBOX 360": self.xbox360_data,
-            "GAMECUBE": self.gamecube_data
+            "ps4": self.ps4_data,
+            "playstation 4": self.ps4_data,
+            "ps3": self.ps3_data,
+            "playstation 3": self.ps3_data,
+            "ps2": self.ps2_data,
+            "playstation 2": self.ps2_data,
+            "xbox one": self.xbone_data,
+            "xbox 360": self.xbox360_data,
+            "gamecube": self.gamecube_data
         }
         console_data = console_schema[game["console"]]
         return self.get_matches(game, console_data)

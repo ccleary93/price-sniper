@@ -18,3 +18,7 @@ class ID_Indexer():
         except IndexError:
             self.previous_scrape_start = 0
         return self.previous_scrape_start
+
+    def load_last_20(self, console):
+        cursor.execute(f"SELECT ebay_id FROM {console} ORDER BY id DESC LIMIT 20")
+        return cursor.fetchall()
