@@ -28,8 +28,12 @@ class TitleMatcher:
                     if len(line) > len(game["title"]):
                         game["title"] = line
         if game["title"] != "":
-            game["price"] = float(game["price"].split(sep="£")[1])
-            return game
+            # in some cases game price may not include a £ symbol
+            try:
+                game["price"] = game["price"].split(sep="£")[1]
+                return game
+            except IndexError:
+                return False
         else:
             return False
 
@@ -45,8 +49,8 @@ class TitleMatcher:
             "playstation 3": self.ps3_data,
             "ps2": self.ps2_data,
             "playstation 2": self.ps2_data,
-            "xbox one": self.xbone_data,
-            "xbox 360": self.xbox360_data,
+            "xbox_one": self.xbone_data,
+            "xbox_360": self.xbox360_data,
             "gamecube": self.gamecube_data
         }
         console_data = console_schema[game["console"]]

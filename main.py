@@ -8,7 +8,6 @@ import datetime
 
 
 while 1 > 0:
-
     #wait between 260 secs and 450 secs before sending more requests
     time_delay = random.randint(260, 450)
     time.sleep(time_delay)
@@ -42,7 +41,7 @@ while 1 > 0:
     }
 
 
-    while pgn < 3 and continue_scrape:
+    while pgn < 5 and continue_scrape:
         # establish connection
         url = f"https://www.ebay.co.uk/b/Video-Games/139973/bn_450842?LH_Sold=1&mag=1&rt=nc&_pgn={pgn}&_sop=13"
         connection = requests.get(url)
@@ -133,14 +132,7 @@ while 1 > 0:
     cursor = db.cursor()
 
 
-    database_schema = {
-        "ps4":"ps4",
-        "ps3":"ps3",
-        "ps2":"ps2",
-        "xbox one":"xbox_one",
-        "xbox 360":"xbox_360",
-        "gamecube":"gamecube"
-    }
+
 
     cursor.execute(f'''INSERT INTO
                     'first_item_index'(ebay_id)
@@ -148,18 +140,18 @@ while 1 > 0:
     db.commit
 
     for console in consoles.keys():
-        for game in [game for game in load_dict if game["console"] == console]:
+        for game in [game for game in load_dict if game["console"] == consoles[console]]:
             game["description"] = data_cleanser.remove_punctuation(game["description"])
             if title_matcher.check_match(game):
                 # check ID not in last batch
                 if game['ebay_id'] not in unique_id_check[game['console']]:
                     cursor.execute(f'''INSERT INTO
-                    '{database_schema[game['console']]}'(title,description,price,postage,total_price,date, time, ebay_id)
+                    '{game['console']}'(title,description,price,postage,total_price,date, time, ebay_id)
                     VALUES('{game['title']}',
                     '{game['description']}',
                     {game['price']},
                     {game['postage']},
-                    {round(game['price']+float(game['postage']),2)},
+                    {round(float(game['price'])+float(game['postage']),2)},
                     '{current_date}',
                     '{current_time}',
                     {game['ebay_id']})''')
