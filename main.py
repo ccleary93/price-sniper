@@ -2,15 +2,13 @@ from bs4 import BeautifulSoup
 import requests
 import time
 import random
-import sqlite3
 import datetime
-
+import psycopg2
+import os
 
 
 while 1 > 0:
-    #wait between 260 secs and 450 secs before sending more requests
-    time_delay = random.randint(260, 450)
-    time.sleep(time_delay)
+
 
     current_date = datetime.datetime.now().date().strftime('%d/%m/%Y')
     current_time = datetime.datetime.now().time().strftime('%H:%M')
@@ -128,25 +126,25 @@ while 1 > 0:
 
     data_cleanser = DataCleanser()
 
-    db = sqlite3.connect("sale-database.db")
+    db = psycopg2.connect("dbname=sales user=sales host=localhost port=5432 password=h8ZaJ5Eyh(U1J%8$Z")
     cursor = db.cursor()
+    data_insert = f'''INSERT INTO
+                    first_item_index(ebay_id)
+                    VALUES({int(id_list[0])})'''
 
-
-
-
-    cursor.execute(f'''INSERT INTO
-                    'first_item_index'(ebay_id)
-                    VALUES('{id_list[0]}')''')
+    cursor.execute(data_insert)
     db.commit
 
+    # duplicate check checks against other loads in this scrape
+    duplicate_check = []
     for console in consoles.keys():
         for game in [game for game in load_dict if game["console"] == consoles[console]]:
             game["description"] = data_cleanser.remove_punctuation(game["description"])
             if title_matcher.check_match(game):
                 # check ID not in last batch
-                if game['ebay_id'] not in unique_id_check[game['console']]:
-                    cursor.execute(f'''INSERT INTO
-                    '{game['console']}'(title,description,price,postage,total_price,date, time, ebay_id)
+                if game['ebay_id'] not in unique_id_check[game['console']] and game['ebay_id'] not in duplicate_check:
+                    data_insert = f'''INSERT INTO
+                    {game['console']}(title,description,price,postage,total_price,date, time, ebay_id)
                     VALUES('{game['title']}',
                     '{game['description']}',
                     {game['price']},
@@ -154,7 +152,13 @@ while 1 > 0:
                     {round(float(game['price'])+float(game['postage']),2)},
                     '{current_date}',
                     '{current_time}',
-                    {game['ebay_id']})''')
+                    {game['ebay_id']})'''
+                    cursor.execute(data_insert)
                     db.commit()
+                    duplicate_check.append(game['ebay_id'])
                 else:
                     pass
+
+    # wait between 260 secs and 450 secs before sending more requests
+    time_delay = random.randint(260, 450)
+    time.sleep(time_delay)
