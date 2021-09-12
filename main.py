@@ -126,7 +126,7 @@ while 1 > 0:
 
     data_cleanser = DataCleanser()
 
-    db = psycopg2.connect("dbname=<dbname> user=<user> host=<host> port=<port> password=<password>")
+    db = psycopg2.connect(f"dbname={os.environ['sales']} user={os.environ['sales']} host={os.environ['DB_ADDRESS']} port=5432 password={os.environ['DB_PASSWORD']}")
     cursor = db.cursor()
     data_insert = f'''INSERT INTO
                     first_item_index(ebay_id)

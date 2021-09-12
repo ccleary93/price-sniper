@@ -1,7 +1,7 @@
-import sqlite3
+import psycopg2
+import os
 
-
-db = sqlite3.connect("sale-database.db")
+db = psycopg2.connect(f"dbname={os.environ['sales']} user={os.environ['sales']} host={os.environ['DB_ADDRESS']} port=5432 password={os.environ['DB_PASSWORD']}")
 cursor = db.cursor()
 
 
