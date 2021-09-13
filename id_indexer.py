@@ -21,4 +21,5 @@ class ID_Indexer():
 
     def load_last_20(self, console):
         cursor.execute(f"SELECT ebay_id FROM {console} ORDER BY id DESC LIMIT 20")
-        return cursor.fetchall()
+        result = cursor.fetchall()
+        return [result[0] for result in results]
