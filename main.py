@@ -30,12 +30,12 @@ while 1 > 0:
 
     # additionally pull last 20 IDs from each table. check will be applied at the end to avoid duplicates
     unique_id_check = {
-        "gamecube": [id_indexer().load_last_20('gamecube')],
-        "ps2": [id_indexer().load_last_20('ps2')],
-        "ps3": [id_indexer().load_last_20('ps3')],
-        "ps4": [id_indexer().load_last_20('ps4')],
-        "xbox_360": [id_indexer().load_last_20('xbox_360')],
-        "xbox_one": [id_indexer().load_last_20('xbox_one')]
+        "gamecube": id_indexer().load_last_20('gamecube'),
+        "ps2": id_indexer().load_last_20('ps2'),
+        "ps3": id_indexer().load_last_20('ps3'),
+        "ps4": id_indexer().load_last_20('ps4'),
+        "xbox_360": id_indexer().load_last_20('xbox_360'),
+        "xbox_one": id_indexer().load_last_20('xbox_one')
     }
 
 
