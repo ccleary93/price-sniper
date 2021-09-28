@@ -1,0 +1,152 @@
+<!DOCTYPE HTML>
+<!--
+	Stellar by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Results</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="/static/css/main.css" />
+		<noscript><link rel="stylesheet" href="/static/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="{{ url_for('home') }}"><h1>Price sniper</h1></a>
+						<a href="{{ url_for('home') }}"><p>Home</p></a>
+					</header>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Content -->
+
+							<section id="content" class="main">
+								<div id="sidebox"><a href="{{ url_for('enter_params') }}"><h2>Back to parameters</h2></a></div>
+
+								<br>
+								<header class="major"><h2>Underpriced auctions</h2></header>
+								{% block noresults %}
+								{% if num_results == 0 %}
+								<p>No auctions were found matching your criteria.</p>
+								{% endif %}
+								{% endblock %}
+								{% block results %}
+								<ul class="statistics">
+									<li class="style1">
+										<span class="icon solid fa-code-branch"></span>
+										<strong>{{ num_results }}</strong> Number of results
+									</li>
+								</ul>
+
+								{% for game in games %}
+									<div class="flexbox flexbox-top" style="border: solid black 1px;">
+										<div class="flexbox-desc-snipe"><u>Description</u><br>{{ game['description'] }}</div>
+										<div class="flexbox-inner"><u>Price</u><br>£{{ game['total_price'] }}</div>
+										<div class="flexbox-inner"><u>Mean / median</u><br>£{{ game['mean_average'] }} / £{{ game['median_average'] }}</div>
+										<div class="flexbox-inner"><u>Logged</u><br>{{ game['num_results'] }}</div>
+										<div class="flexbox-inner"><u>Link</u><br>
+											<a href="https://www.ebay.co.uk/itm/{{ game['ebay_id'] }}" target="_blank">{{ game['ebay_id'] }}</a>
+										</div>
+										<div class="flexbox-id"><button class="a{{ game['ebay_id'] }}" id="c{{ game['ebay_id'] }}" onclick="revealResults({{ game['ebay_id'] }})">Expand</button></div>
+									</div>
+								<div id="d{{ game['ebay_id'] }}">
+								{% for row in game['results'] %}
+									<div class="b{{ game['ebay_id'] }}" style="display: none">
+										<div class="flexbox flexbox-sub" style="border: solid black 1px; margin-bottom: 5px;">
+											<div class="flexbox-desc-snipe"><u>Description</u><br>{{ row[2] }}</div>
+											<div class="flexbox-inner"><u>Price:</u><br>£{{ row[5] }}</div>
+											<div class="flexbox-inner"><u>Date / time ended:</u><br>{{ row[6] }} {{ row[7] }}</div>
+										</div>
+									</div>
+								{% endfor %}
+								</div>
+								{% endfor %}
+
+
+								{% endblock %}
+							</section>
+
+					</div>
+
+				<!-- Footer -->
+					<footer id="footer">
+						<section>
+							<h2>Aliquam sed mauris</h2>
+							<p>Sed lorem ipsum dolor sit amet et nullam consequat feugiat consequat magna adipiscing tempus etiam dolore veroeros. eget dapibus mauris. Cras aliquet, nisl ut viverra sollicitudin, ligula erat egestas velit, vitae tincidunt odio.</p>
+							<ul class="actions">
+								<li><a href="#" class="button">Learn More</a></li>
+							</ul>
+						</section>
+						<section>
+							<h2>Etiam feugiat</h2>
+							<dl class="alt">
+								<dt>Address</dt>
+								<dd>1234 Somewhere Road &bull; Nashville, TN 00000 &bull; USA</dd>
+								<dt>Phone</dt>
+								<dd>(000) 000-0000 x 0000</dd>
+								<dt>Email</dt>
+								<dd><a href="#">information@untitled.tld</a></dd>
+							</dl>
+							<ul class="icons">
+								<li><a href="#" class="icon brands fa-twitter alt"><span class="label">Twitter</span></a></li>
+								<li><a href="#" class="icon brands fa-facebook-f alt"><span class="label">Facebook</span></a></li>
+								<li><a href="#" class="icon brands fa-instagram alt"><span class="label">Instagram</span></a></li>
+								<li><a href="#" class="icon brands fa-github alt"><span class="label">GitHub</span></a></li>
+								<li><a href="#" class="icon brands fa-dribbble alt"><span class="label">Dribbble</span></a></li>
+							</ul>
+						</section>
+						<p class="copyright">&copy; Untitled. Design: <a href="https://html5up.net">HTML5 UP</a>.</p>
+					</footer>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="/static/js/jquery.min.js"></script>
+			<script src="/static/js/jquery.scrollex.min.js"></script>
+			<script src="/static/js/jquery.scrolly.min.js"></script>
+			<script src="/static/js/browser.min.js"></script>
+			<script src="/static/js/breakpoints.min.js"></script>
+			<script src="/static/js/util.js"></script>
+			<script src="/static/js/main.js"></script>
+			<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+			<script>
+<!--			generate ajax functions procedurally to tap into ID for animation-->
+			{% for game in games %}
+				$(function(){
+					$('#c{{ game['ebay_id'] }}').on('click',function(){
+					$('#d{{ game['ebay_id'] }}').addClass('animate');
+					});
+				});
+			{% endfor %}
+
+<!--			revealResults function reveals and collapses sub-results-->
+				function revealResults(ebayId) {
+					console.log(ebayId)
+					const x = document.querySelectorAll("div.b" + ebayId);
+					console.log(x)
+					for (let i = 0; i < x.length; i++) {
+						console.log(x[i])
+						console.log(x[i].style.display)
+						if (x[i].style.display === "none") {
+							x[i].style.display = "block";
+							const y = document.querySelector("button.a" + ebayId)
+							y.innerHTML = "Collapse"
+						} else {
+							x[i].style.display = "none";
+							const y = document.querySelector("button.a" + ebayId)
+							y.innerHTML = "Expand"
+						}
+					}
+				}
+			</script>
+
+	</body>
+</html>
